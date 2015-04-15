@@ -72,14 +72,14 @@ public class Generator : MonoBehaviour {
 		}
 		//Debug.Log(thisFrame.id + "generating...");
 		//generate disasters
-		List<Disaster> disasters = Disasters.GetInstance().GetDisasters();
-		for(int i = 0; i < disasters.Count; i++){
-			if(disasters[i].m_startTime == thisFrame.id){
-				GameObject dis = (GameObject)Instantiate(fireSmoke,
-					disasters[i].m_startPosition, Quaternion.identity);
-				disasters.RemoveAt(i);
-			}
-		}
+//		List<Disaster> disasters = Disasters.GetInstance().GetDisasters();
+//		for(int i = 0; i < disasters.Count; i++){
+//			if(disasters[i].m_startTime == thisFrame.id){
+//				GameObject dis = (GameObject)Instantiate(fireSmoke,
+//					disasters[i].m_startPosition, Quaternion.identity);
+//				disasters.RemoveAt(i);
+//			}
+//		}
 		
 		List<int> newIDs = new List<int>();
 		List<int> delIDs = new List<int>();

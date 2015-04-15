@@ -51,14 +51,14 @@
      <Compile Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\PlatformInputController.js" />
      <Compile Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\ThirdPersonCamera.js" />
      <Compile Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\ThirdPersonController.js" />
- <Reference Include="System.Data">
- <HintPath>Assets\Plugins\System.Data.dll</HintPath>
- </Reference>
  <Reference Include="Mono.Data.Sqlite">
  <HintPath>Assets\Plugins\Mono.Data.Sqlite.dll</HintPath>
  </Reference>
  <Reference Include="Mono.Data.SqliteClient">
  <HintPath>Assets\Plugins\Mono.Data.SqliteClient.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Data">
+ <HintPath>Assets\Plugins\System.Data.dll</HintPath>
  </Reference>
  <Reference Include="System.Windows.Forms">
  <HintPath>Assets\Plugins\System.Windows.Forms.dll</HintPath>
