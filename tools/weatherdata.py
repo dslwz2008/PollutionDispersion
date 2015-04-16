@@ -3,16 +3,20 @@
 # Email: dslwz2002@163.com
 __author__ = 'Shen Shen'
 
+import os
 import sys
 import pymongo
 import requests
 import requests.exceptions
 import xml.etree.cElementTree as ET
-from datetime import datetime
+from qqmail import *
+from datetime import datetime,timedelta
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 RAWDATA='rawdata/'
 INVALIDDATA=-999
+mail_list = ['67070868@qq.com', ]
+mail_ins = QQMail("584544233", "dslwz020415")
 
 def tryParse(t, value, min, max):
     try:
@@ -25,17 +29,18 @@ def tryParse(t, value, min, max):
 
 
 # 请求url，获取原始字符串，保存一份到原始文件，并返回字符串
-def get_raw_data(url):
+def get_raw_data(url,cid):
     try:
         r = requests.get(url)
         rawstr = r.text.encode('utf-8')
-        filename = '%s%s.xml' % (RAWDATA, datetime.now().strftime('%Y%m%d%H%M%S'), )
+        filename = '%s%s-%s.xml' % (RAWDATA, datetime.now().strftime('%Y%m%d%H'), cid)
         with open(filename, 'w') as fp:
             fp.write(rawstr)
         return rawstr
     except requests.exceptions.RequestException, e:
         # hadnle exception
         print(e.message)
+        mail_ins.send(mail_list, "get_raw_data error", e.message)
         return None
 
 # 对原始xml字符串进行解析，并返回json格式
@@ -56,20 +61,35 @@ def save_weather_data(rawstr):
         # establish a connection to the database
         with pymongo.MongoClient('localhost', 27017) as client:
             coll = client['weather']['beijing']
-            coll.insert(result)
+            coll.insert_one(result)
     except Exception,e:
         print(e.message)
+        mail_ins.send(mail_list, "get_raw_data error", e.message)
         return None
 
+def gen_url():
+    ids = []
+    urls = []
+    base = 'http://flash.weather.com.cn/sk2/%s.xml'
+    with open('ids.txt', 'r') as fp:
+        for line in fp:
+            idstr = line.splitlines()[0]
+            ids.append(idstr)
+            urls.append(base % idstr)
+    return urls,ids
+
+def worker():
+    urls,cids = gen_url()
+    for idx in range(len(urls)):
+        print('handling %s, url: %s' % (cids[idx], urls[idx], ))
+        save_weather_data(get_raw_data(urls[idx], cids[idx]))
 
 if __name__ == '__main__':
-    url = 'http://flash.weather.com.cn/sk2/101011300.xml'
-    save_weather_data(get_raw_data(url))
-    # scheduler = BlockingScheduler()
-    # scheduler.add_job(tick, 'interval', seconds=3)
-    # print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
-    #
-    # try:
-    #     scheduler.start()
-    # except (KeyboardInterrupt, SystemExit):
-    #     pass
+    scheduler = BlockingScheduler()
+    scheduler.add_job(worker, 'interval', hours=1, start_date=datetime.now()+timedelta(seconds=2))
+    print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
+
+    try:
+        scheduler.start()
+    except (KeyboardInterrupt, SystemExit):
+        pass
